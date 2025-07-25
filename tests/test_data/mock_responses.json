@@ -1,0 +1,11 @@
+{
+  "mock_responses": {
+    "cypher_query_response": {
+      "status": "success",
+      "data": []
+    },
+    "llm_response": {
+      "response": "Sample response from LLM"
+    }
+  }
+}

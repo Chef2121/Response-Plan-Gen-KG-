@@ -1,0 +1,11 @@
+{
+  "sample_events": [
+    {
+      "event_id": "EVT001",
+      "event_type": "traffic_incident",
+      "location": "Highway 101, Mile 25",
+      "severity": "high",
+      "timestamp": "2025-07-25T10:30:00Z"
+    }
+  ]
+}
