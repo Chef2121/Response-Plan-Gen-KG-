@@ -1,11 +1,50 @@
 {
-  "sample_events": [
-    {
-      "event_id": "EVT001",
-      "event_type": "traffic_incident",
-      "location": "Highway 101, Mile 25",
-      "severity": "high",
-      "timestamp": "2025-07-25T10:30:00Z"
-    }
-  ]
+    "sample_events": [
+        {
+            "event_id": "test_001",
+            "link_id": "17840006094278",
+            "incident_type": "accident",
+            "severity": "high",
+            "blocked_lanes": ["left", "center"],
+            "queue_length": 1200,
+            "time": "0745",
+            "duration_minutes": 25,
+            "location_description": "Junction with Highway 101",
+            "additional_hazards": ["debris", "fuel spill"],
+            "weather_conditions": "clear",
+            "traffic_volume": "high"
+        },
+        {
+            "event_id": "test_002", 
+            "link_id": "17840006094279",
+            "incident_type": "breakdown",
+            "severity": "medium",
+            "blocked_lanes": ["right"],
+            "queue_length": 400,
+            "time": "1430",
+            "duration_minutes": 15,
+            "location_description": "Near shopping center",
+            "additional_hazards": [],
+            "weather_conditions": "sunny",
+            "traffic_volume": "medium"
+        }
+    ],
+    "vms_equipment": [
+        {
+            "EQT_NO": "VMS_TEST_001",
+            "EQT_EXT_ID": "VMS_TEST_001_EXT",
+            "ROAD_NAME": "Test Highway",
+            "LATITUDE": 25.123456,
+            "LONGITUDE": 55.987654,
+            "LINK_ID": 17840006094278
+        },
+        {
+            "EQT_NO": "VMS_TEST_002",
+            "EQT_EXT_ID": "VMS_TEST_002_EXT", 
+            "ROAD_NAME": "Test Highway",
+            "LATITUDE": 25.124456,
+            "LONGITUDE": 55.988654,
+            "LINK_ID": 17840006094277
+        }
+    ]
 }

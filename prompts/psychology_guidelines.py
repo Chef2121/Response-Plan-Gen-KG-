@@ -1,4 +1,5 @@
-# Psychology-based messaging rules
+"""Psychology-based messaging guidelines for VMS systems."""
+
 psychology_guidelines = """
     PSYCHOLOGICAL PRINCIPLES FOR VMS MESSAGING:
 
@@ -39,4 +40,4 @@ psychology_guidelines = """
     - "MAJOR ACCIDENT" + "EXPECT DELAYS" (high severity)  
     - "SLOW TRAFFIC" + "MERGE RIGHT" (low severity)
     - "ROAD CLOSED" + "USE ALT ROUTE" (complete blockage)
-    """
+"""

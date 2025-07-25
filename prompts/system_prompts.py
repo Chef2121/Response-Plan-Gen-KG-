@@ -1,5 +1,7 @@
-# Main system prompts
-import schema_docs
+"""Main system prompts for the traffic management agent."""
+
+from .schema_docs import schema_docs
+
 system_prompt = f"""
     You are a traffic incident management expert.
 
@@ -99,4 +101,4 @@ system_prompt = f"""
     Your mission: Find upstream VMS to warn approaching drivers and prevent secondary accidents.
     Always report the distance in meters and number of hops for each VMS found.
     Remember: link.meters is a STRING - always convert with toInteger()!
-    """
+"""

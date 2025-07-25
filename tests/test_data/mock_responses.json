@@ -1,11 +1,65 @@
 {
-  "mock_responses": {
-    "cypher_query_response": {
-      "status": "success",
-      "data": []
+    "mock_cypher_responses": {
+        "schema_query": {
+            "Node labels": ["Link", "VMS", "Event", "ResponsePlan"],
+            "Relationship types": ["CONNECTED_TO", "LOCATED_AT", "HAS_RESPONSE_PLAN"],
+            "Node properties": {
+                "Link": ["link_id", "from_junction", "to_junction", "meters"],
+                "VMS": ["EQT_NO", "EQT_EXT_ID", "ROAD_NAME", "LATITUDE", "LONGITUDE", "LINK_ID"]
+            }
+        },
+        "vms_search": [
+            {
+                "EQT_NO": "VMS001",
+                "ROAD_NAME": "Main Highway", 
+                "distance_meters": 500,
+                "hops_from_incident": 2
+            },
+            {
+                "EQT_NO": "VMS002",
+                "ROAD_NAME": "Main Highway",
+                "distance_meters": 1200, 
+                "hops_from_incident": 5
+            }
+        ]
     },
-    "llm_response": {
-      "response": "Sample response from LLM"
+    "mock_llm_responses": {
+        "extract_event_data": {
+            "event_id": "extracted_001",
+            "link_id": "17840006094278",
+            "incident_type": "accident",
+            "severity": "medium",
+            "blocked_lanes": ["left"],
+            "queue_length": 750,
+            "time": "0845"
+        },
+        "analyze_event_changes": {
+            "event_id": "extracted_001",
+            "update_required": true,
+            "significant_changes": [
+                {
+                    "metric": "severity",
+                    "current_value": "high",
+                    "significance": "high",
+                    "reasoning": "Severity increased from medium to high"
+                }
+            ],
+            "recommendation": "Update response plan"
+        },
+        "generate_response_plan": {
+            "plan_type": "Traffic Management Plan",
+            "priority": "High",
+            "estimated_duration": "45 minutes",
+            "traffic_management_actions": [
+                {
+                    "eqt_no": "VMS001",
+                    "message_line_1": "ACCIDENT AHEAD",
+                    "message_line_2": "SLOW DOWN",
+                    "display_duration": "30 minutes",
+                    "distance": "500 meters",
+                    "urgency_level": "High"
+                }
+            ]
+        }
     }
-  }
 }

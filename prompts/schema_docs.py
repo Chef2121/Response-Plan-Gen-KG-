@@ -1,4 +1,5 @@
-# Database schema documentation
+"""Database schema documentation."""
+
 schema_docs = """
     Link nodes represent segments of the road 
     The Link node have the following properties
@@ -29,5 +30,4 @@ schema_docs = """
     The Link nodes are connected by relationship CONNECTED_TO which represents the physical road network topology.
     CONNECTED_TO relationships form bidirectional connections between adjacent road segments.
     Links are connected by matching Link (to_junction) with Link (from_junction) of adjacent segments.
-
-    """
+"""
