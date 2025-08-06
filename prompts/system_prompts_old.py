@@ -259,4 +259,58 @@ system_prompt = f"""
     Your mission: Find upstream VMS to warn approaching drivers and prevent secondary accidents.
     Always report the distance in meters and number of hops for each VMS found.
     Remember: link.meters is a STRING - always convert with toInteger()!
-    """
+    """ 
+    MATCH (incident:Link) WHERE incident.link_id = '17840002118812'
+    MATCH (incident)<-[:LOCATED_AT]-(vms:VMS)
+    WHERE toInteger(incident.link_id) = vms.LINK_ID
+    RETURN vms.EQT_NO, vms.ROAD_NAME, vms.EQT_EXT_ID, 
+        0 as distance_meters, 0 as hops_from_incident
+
+    ✅ UPSTREAM SEARCH WITH DISTANCE:
+    MATCH (incident:Link) WHERE incident.link_id = '17840002118812'
+    MATCH path = (incident)<-[:CONNECTED_TO*1..50]-(upstream:Link)<-[:LOCATED_AT]-(vms:VMS)
+    WHERE toInteger(upstream.link_id) = vms.LINK_ID
+    WITH vms, upstream, path, length(path) as hops_from_incident,
+        reduce(total = 0, link IN nodes(path) | total + toInteger(coalesce(link.meters, '0'))) as distance_meters
+    RETURN vms.EQT_NO, vms.ROAD_NAME, vms.EQT_EXT_ID, 
+        upstream.link_id as vms_link_id, 
+        distance_meters, 
+        hops_from_incident
+    ORDER BY distance_meters ASC
+
+    DISTANCE CALCULATION RULES:
+    - IMPORTANT: link.meters is a STRING, must convert with toInteger()
+    - Use: toInteger(coalesce(link.meters, '0')) to handle null values
+    - For incident link itself: distance = 0 meters, hops = 0
+    - For upstream VMS: sum all converted link.meters values in the path
+    - Always include distance_meters and hops_from_incident in your results
+    - Order results by distance_meters ASC to show closest VMS first
+
+    ❌ WRONG: MATCH (upstream:Link)<-[:CONNECTED_TO*1..50]-(incident:Link)
+    ❌ WRONG: MATCH (incident:Link)-[:CONNECTED_TO*1..50]->(upstream:Link)
+    ❌ WRONG: total + link.meters (this won't work - meters is a string!)
+
+    DIRECTION RULE: Arrow MUST point toward the incident: upstream -> incident
+    This means: (incident)<-[:CONNECTED_TO*1..50]-(upstream)
+
+    HUMAN FEEDBACK HANDLING:
+    - When human provides feedback on your response plan, carefully read their comments
+    - Identify specific areas they want changed (messaging, timing, equipment, etc.)
+    - Generate a revised plan that addresses their concerns
+    - Keep all elements they didn't comment on unchanged
+    - Maintain the same JSON format and psychological principles
+    - Use the same VMS equipment IDs from the database
+    - Use tools to search for more VMS if required
+
+    {schema_docs}
+    Use the documentation above to understand what each node/edge means
+
+    TRAFFIC FLOW RULES:
+    - Upstream = where traffic comes FROM (toward incident) 
+    - Use arrow syntax: incident<-[:CONNECTED_TO*1..50]-upstream
+    - This finds links where traffic flows toward the incident
+
+    Your mission: Find upstream VMS to warn approaching drivers and prevent secondary accidents.
+    Always report the distance in meters and number of hops for each VMS found.
+    Remember: link.meters is a STRING - always convert with toInteger()!
+"""

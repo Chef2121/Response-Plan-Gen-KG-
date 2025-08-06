@@ -67,26 +67,44 @@ class RoadNetworkChatBot:
     
     def stream_query(self, question: str, run_name: str = None):
         """Stream the response for real-time updates."""
-        try:
-            initial_state = {
-                "messages": [HumanMessage(content=question)],
-                "tool_calls": []
-            }
+        initial_state = {
+            "messages": [HumanMessage(content=question)],
+            "tool_calls": []
+        }
 
-            config = {
-                "configurable": {"thread_id": "stream"}, 
-                "run_name": run_name or f"stream_traffic_query",
-                "tags": ["traffic-management", "streaming", "neo4j"],
-                "metadata": {"streaming": True},
-                'recursion_limit': 50
-            }
+        config = {
+            "configurable": {"thread_id": "stream"}, 
+            "run_name": run_name or f"stream_traffic_query",
+            "tags": ["traffic-management", "streaming", "neo4j"],
+            "metadata": {"streaming": True},
+            'recursion_limit': 50
+        }
+        
+        for chunk in self.app.stream(initial_state, config=config):
+            if self.verbose:
+                print(f"Chunk received: {list(chunk.keys())}")
+            yield chunk
             
-            for chunk in self.app.stream(initial_state, config=config):
-                if self.verbose:
-                    print(f"Chunk received: {list(chunk.keys())}")
-                yield chunk
-                
         except Exception as e:
             if self.verbose:
-                print(f"Streaming error: {e}")
-            yield {"error": str(e)}
+                print(f"❌ Error occurred: {e}")
+            return f"Error: {e}"
+    
+    def stream_query(self, question: str, run_name: str = None):
+        """Stream the response for real-time updates."""
+        initial_state = {
+            "messages": [HumanMessage(content=question)],
+            "tool_calls": []
+        }
+
+        config = {
+            "configurable": {"thread_id": "stream"},
+            "run_name": run_name or f"stream_traffic_query",
+            "tags": ["traffic-management", "streaming", "neo4j"],
+            "metadata": {"streaming": True}
+        }
+        
+        for chunk in self.app.stream(initial_state, config=config):
+            if self.verbose:
+                print(f"📦 Chunk received: {list(chunk.keys())}")
+            yield chunk

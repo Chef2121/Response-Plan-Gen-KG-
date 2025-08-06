@@ -42,11 +42,9 @@ A sophisticated traffic incident management system that uses Neo4j knowledge gra
 
 ## Usage
 
-```python
-from src.agents.traffic_agent import RoadNetworkChatBot
-
-chatbot = RoadNetworkChatBot()
-result = chatbot.query("Traffic incident on link 17840006094278...")
+```
+run in terminal
+python main.py interactive
 ```
 
 See `docs/api_reference.md` for detailed API documentation.

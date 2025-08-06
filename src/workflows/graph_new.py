@@ -39,10 +39,10 @@ def should_continue(state: GraphState):
     last_message = state["messages"][-1]
     needs_revision = state.get("needs_revision", False)
     final_approved = state.get("final_approved", False)
-    event_stored = False
-    plan_stored = False
-    event_analysis_completed = False
-    update_required = None
+    event_stored = state.get("event_stored", False)
+    plan_stored = state.get("plan_stored", False)
+    event_analysis_completed = state.get("event_analysis_completed", False)
+    update_required = state.get("update_required", None)
 
     # Check if storage operations are complete (only after human approval)
     for message in reversed(state["messages"][-20:]):  
@@ -262,7 +262,9 @@ def human_feedback(state: GraphState):
             "user_feedback": feedback,
             "final_approved": True,
             "needs_revision": False,
-            "current_plan": plan
+            "current_plan": plan,
+            "event_analysis_completed": state.get("event_analysis_completed", True),  
+            "update_required": state.get("update_required", True)  
         }
     else:
         return {
@@ -270,7 +272,9 @@ def human_feedback(state: GraphState):
             "final_approved": False,
             "needs_revision": True,  
             "revision_count": state.get("revision_count", 0) + 1,
-            "current_plan": plan
+            "current_plan": plan,
+            "event_analysis_completed": state.get("event_analysis_completed", True), 
+            "update_required": state.get("update_required", True)  
         }
 
 
