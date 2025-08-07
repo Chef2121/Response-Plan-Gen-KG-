@@ -43,8 +43,9 @@ A sophisticated traffic incident management system that uses Neo4j knowledge gra
 ## Usage
 
 ```
-run in terminal
-python main.py interactive
+python scripts/setup_system.py
+
+python main.py interactive 
 ```
 
 See `docs/api_reference.md` for detailed API documentation.

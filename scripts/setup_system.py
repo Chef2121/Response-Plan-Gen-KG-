@@ -2,7 +2,7 @@
 
 import os
 from dotenv import load_dotenv
-
+load_dotenv()
 def setup_connections():
     """Setup Neo4j and Anthropic connections like in the notebook."""
     
