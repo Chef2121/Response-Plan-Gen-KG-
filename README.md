@@ -19,14 +19,17 @@ A sophisticated traffic incident management system that uses Neo4j knowledge gra
    # Edit .env with your credentials
    ```
 
-2. **Initialize Database**:
+2. **Setup system**:
    ```bash
-   python scripts/setup_database.py
+   python scripts/setup_system.py
    ```
+3. **Setup Graph**:
 
-3. **Run Demo**:
+   Run All Knowledge_Graph Creator.ipynb after changing file paths to files to generate graph
+
+4. **Run Demo**:
    ```bash
-   python scripts/demo.py
+   python main.py interactive 
    ```
 
 ## Project Structure
@@ -40,12 +43,11 @@ A sophisticated traffic incident management system that uses Neo4j knowledge gra
 - `monitoring/`: Performance tracking
 - `docs/`: Documentation
 
-## Usage
 
-```
-python scripts/setup_system.py
 
-python main.py interactive 
-```
-
-See `docs/api_reference.md` for detailed API documentation.
+## Issues
+- Chance of event_analyzed becoming false after human feedback causing endless loop
+- Should be an issue of using input instead of interrupt during human feedback causing memory loss
+- Have not extensively tested human feedback after adding auto update function
+- main.py has not been tested fully, most tests were done in rpgjv2human.ipynb, might have issues
+-

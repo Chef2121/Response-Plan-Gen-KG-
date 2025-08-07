@@ -56,9 +56,7 @@ LANGCHAIN_PROJECT=traffic-management-prod
 
 ### 5. Database Setup
 
-```bash
-python scripts/setup_database.py
-```
+Run All Knowledge_Graph Creator.ipynb after changing file paths to files to generate graph
 
 ### 6. Verify Installation
 
