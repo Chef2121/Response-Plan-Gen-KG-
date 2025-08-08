@@ -144,7 +144,7 @@ dijkstras_search_template = """
     YIELD targetNode, totalCost, nodeIds
 
     WITH gds.util.asNode(targetNode) AS vms, totalCost AS distance_meters, size(nodeIds) AS hops_from_incident
-    WHERE distance_meters <= 9000 AND NOT vms.EQT_NO IN ['E11DMSG04S', 'E11DMSG05S', 'D59DMSP02E'] // This list would be the VMS already found change value of distance_meters based 
+    WHERE distance_meters <= 9000 AND NOT vms.EQT_NO IN ['E11DMSG04S', 'E11DMSG05S', 'D59DMSP02E'] // This list would be the VMS already found, change value of distance_meters based on feedback
     RETURN 
     vms.EQT_NO, 
     vms.ROAD_NAME, 
