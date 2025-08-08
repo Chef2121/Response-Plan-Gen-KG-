@@ -39,10 +39,10 @@ def should_continue(state: GraphState):
     last_message = state["messages"][-1]
     needs_revision = state.get("needs_revision", False)
     final_approved = state.get("final_approved", False)
-    event_stored = False
-    plan_stored = False
-    event_analysis_completed = False
-    update_required = None
+    event_stored = state.get("event_stored", False)
+    plan_stored = state.get("plan_stored", False)
+    event_analysis_completed = state.get("event_analysis_completed", False)
+    update_required = state.get("update_required", None)
 
     # Check if storage operations are complete (only after human approval)
     for message in reversed(state["messages"][-20:]):  
@@ -67,7 +67,7 @@ def should_continue(state: GraphState):
         return END
     
     # Check for event analysis completion and update_required
-    for message in reversed(state["messages"][-15:]): 
+    for message in reversed(state["messages"][-100:]): 
         if (hasattr(message, 'name') and 
             message.name == "analyze_event_changes" and
             hasattr(message, 'content')):
@@ -91,6 +91,7 @@ def should_continue(state: GraphState):
         print("Event analysis complete: No response plan update required - ending workflow")
         return END
     
+    
     # Handle revision cases
     if needs_revision:
         if hasattr(last_message, 'tool_calls') and last_message.tool_calls:
@@ -105,7 +106,7 @@ def should_continue(state: GraphState):
     
     # Check if response plan was generated 
     response_plan_generated = False
-    for message in reversed(state["messages"][-10:]):
+    for message in reversed(state["messages"][-5:]):
         if (hasattr(message, 'name') and 
             message.name == "generate_response_plan" and
             hasattr(message, 'content')):

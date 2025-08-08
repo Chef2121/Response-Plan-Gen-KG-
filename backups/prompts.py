@@ -193,8 +193,7 @@ dijkstras_search_template = """
     //Dijkstra's search
     
     MATCH (vms:VMS)
-    WITH collect(id(vms)) AS targetNodes
-
+    WITH collect(toInteger(split(elementId(vms), ":")[-1])) AS targetNodes
     MATCH (incident:Link {link_id: '17840006094278'})
     CALL gds.shortestPath.dijkstra.stream('linkGraph', {
     sourceNode: incident,
