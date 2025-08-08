@@ -25,7 +25,7 @@ A sophisticated traffic incident management system that uses Neo4j knowledge gra
    ```
 3. **Setup Graph**:
 
-   Run All Knowledge_Graph_Creator.ipynb after changing file paths to files to generate graph
+   Run All Knowledge_Graph_Creator.ipynb in archive after changing file paths to files to generate graph
 
 4. **Run Demo**:
    ```bash

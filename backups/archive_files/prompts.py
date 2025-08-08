@@ -1,4 +1,3 @@
-#PROMPTS FOR AGENTS
 schema_docs = """
     Link nodes represent segments of the road 
     The Link node have the following properties
@@ -55,38 +54,48 @@ schema_docs = """
     Links are connected by matching Link (to_junction) with Link (from_junction) of adjacent segments.
 
     """
-vms_zone_rule = """
-    VMS SEARCH DISTANCE CALCULATION:
+psychology_guidelines = """
+    PSYCHOLOGICAL PRINCIPLES FOR VMS MESSAGING:
 
-    STEP 1: Calculate Base Distance
-    BASE_DISTANCE = queue_length + safety_buffer
+    1. URGENCY & ATTENTION:
+    - Use action words: "SLOW", "STOP", "CAUTION", "MERGE"
+    - Avoid passive language: "PLEASE" or "KINDLY"
+    - Create urgency without panic: "ACCIDENT AHEAD" not "CRASH"
 
-    STEP 2: Apply Safety Buffer by Road Type
-    - Motorways: 3000m (high speed, longer stopping distance)
-    - Major Roads: 2000m 
-    - Secondary Roads: 1500m
-    - Local Roads: 1000m
+    2. COGNITIVE LOAD REDUCTION:
+    - Maximum 2 lines, 20 characters each
+    - Use familiar terminology drivers understand
+    - Avoid abbreviations that require mental processing
+    - Use numbers for distances: "1 kilometer" not "ONE kilometer"
 
-    STEP 3: Apply Severity Multiplier
-    - High severity: 1.5x
-    - Medium severity: 1.2x  
-    - Low severity: 1.0x
+    3. EMOTIONAL RESPONSE MANAGEMENT:
+    - Severity words: HIGH="MAJOR", MEDIUM="ACCIDENT", LOW="INCIDENT"
+    - Calming words: "SLOW TRAFFIC" vs "TRAFFIC JAM"
+    - Avoid fear words: "DANGER", "HAZARD", "RISK"
 
-    STEP 4: Calculate Final Distance
-    FINAL_SEARCH_DISTANCE = (queue_length + safety_buffer) * severity_multiplier
-    Constraints: MIN = 2000m, MAX = 10000m
+    4. BEHAVIORAL PSYCHOLOGY:
+    - Give specific actions: "USE RIGHT LANE" not "AVOID LEFT"
+    - Provide alternatives: "USE ALT ROUTE" when possible
+    - Time-based urgency: Morning rush = more aggressive messaging
 
-    STEP 5: Validate Minimum VMS Requirements
-    - Motorways: 3 VMS minimum
-    - Major Roads: 2 VMS minimum  
-    - Secondary/Local Roads: 1 VMS minimum
+    5. DISTANCE-BASED MESSAGING:
+    - 2000m+: General warning "SLOW TRAFFIC AHEAD"
+    - 1000-2000m: Specific "ACCIDENT AHEAD" + "SLOW DOWN"
+    - 500-1000m: Action required "MERGE RIGHT" + "ACCIDENT"
+    - <500m: Immediate "SLOW" + "ACCIDENT AHEAD"
 
-    EXAMPLE CALCULATION:
-    Event: Queue 1500m, Motorway, High severity
-    Base = 1500 + 3000 = 4500m
-    Final = 4500 * 1.5 = 6750m
-    Search distance = 6750m, Need minimum 3 VMS
+    6. TIME-BASED PSYCHOLOGY:
+    - Rush hour (0700-0900, 1700-1900): More authoritative tone
+    - Off-peak: Informational tone acceptable
+    - Night (2200-0600): Brighter, more attention-grabbing
+
+    7. PROVEN EFFECTIVE MESSAGES:
+    - "ACCIDENT AHEAD" + "SLOW DOWN" (medium severity)
+    - "MAJOR ACCIDENT" + "EXPECT DELAYS" (high severity)  
+    - "SLOW TRAFFIC" + "MERGE RIGHT" (low severity)
+    - "ROAD CLOSED" + "USE ALT ROUTE" (complete blockage)
     """
+# Neo4j Cypher Query Cheatsheet
 neo4j_cs = """ 
     # Neo4j Cypher Query Cheatsheet
 
@@ -189,11 +198,13 @@ neo4j_cs = """
     CALL apoc.path.subgraphAll(startNode, {relationshipFilter:'KNOWS'}) YIELD nodes, relationships RETURN nodes, relationships
     """
 
+# GDS Templates for graph projections and algorithms
 dijkstras_search_template = """
     //Dijkstra's search
     
     MATCH (vms:VMS)
     WITH collect(toInteger(split(elementId(vms), ":")[-1])) AS targetNodes
+
     MATCH (incident:Link {link_id: '17840006094278'})
     CALL gds.shortestPath.dijkstra.stream('linkGraph', {
     sourceNode: incident,
@@ -212,10 +223,36 @@ dijkstras_search_template = """
     distance_meters, 
     hops_from_incident
     ORDER BY distance_meters ASC
+
+    //USE THIS TEMPLATE WHEN SEARCHING FOR ADDITIONAL VMS
+    MATCH (vms:VMS)
+    WITH collect(toInteger(split(elementId(vms), ":")[-1])) AS targetNodes
+
+    MATCH (incident:Link {link_id: '17840006094278'})
+    CALL gds.shortestPath.dijkstra.stream('linkGraph', {
+    sourceNode: incident,
+    targetNodes: targetNodes,
+    relationshipWeightProperty: 'weight'
+    })
+    YIELD targetNode, totalCost, nodeIds
+
+    WITH gds.util.asNode(targetNode) AS vms, totalCost AS distance_meters, size(nodeIds) AS hops_from_incident
+    WHERE distance_meters <= 9000 AND NOT vms.EQT_NO IN ['E11DMSG04S', 'E11DMSG05S', 'D59DMSP02E'] // This list would be the VMS already found change value of distance_meters based 
+    RETURN 
+    vms.EQT_NO, 
+    vms.ROAD_NAME, 
+    vms.EQT_EXT_ID, 
+    vms.LINK_ID AS vms_link_id, 
+    distance_meters, 
+    hops_from_incident
+    ORDER BY distance_meters ASC
+    LIMIT 5
+
     """
 
 drop_graph_template = """
     CALL gds.graph.drop('linkGraph')
+    YIELD graphName;
     """
 
 project_graph_template = """
@@ -239,119 +276,39 @@ project_graph_template = """
     );
     """
 
-psychology_guidelines = """
-    PSYCHOLOGICAL PRINCIPLES FOR VMS MESSAGING:
+# VMS zone rules for search distance calculation
+vms_zone_rule = """
+    VMS SEARCH DISTANCE CALCULATION:
 
-    1. URGENCY & ATTENTION:
-    - Use action words: "SLOW", "STOP", "CAUTION", "MERGE"
-    - Avoid passive language: "PLEASE" or "KINDLY"
-    - Create urgency without panic: "ACCIDENT AHEAD" not "CRASH"
+    STEP 1: Calculate Base Distance
+    BASE_DISTANCE = queue_length + safety_buffer
 
-    2. COGNITIVE LOAD REDUCTION:
-    - Maximum 2 lines, 20 characters each
-    - Use familiar terminology drivers understand
-    - Avoid abbreviations that require mental processing
-    - Use numbers for distances: "1 kilometer" not "ONE kilometer"
+    STEP 2: Apply Safety Buffer by Road Type
+    - Motorways: 3000m (high speed, longer stopping distance)
+    - Major Roads: 2000m 
+    - Secondary Roads: 1500m
+    - Local Roads: 1000m
 
-    3. EMOTIONAL RESPONSE MANAGEMENT:
-    - Severity words: HIGH="MAJOR", MEDIUM="ACCIDENT", LOW="INCIDENT"
-    - Calming words: "SLOW TRAFFIC" vs "TRAFFIC JAM"
-    - Avoid fear words: "DANGER", "HAZARD", "RISK"
+    STEP 3: Apply Severity Multiplier
+    - High severity: 1.5x
+    - Medium severity: 1.2x  
+    - Low severity: 1.0x
 
-    4. BEHAVIORAL PSYCHOLOGY:
-    - Give specific actions: "USE RIGHT LANE" not "AVOID LEFT"
-    - Provide alternatives: "USE ALT ROUTE" when possible
-    - Time-based urgency: Morning rush = more aggressive messaging
+    STEP 4: Calculate Final Distance
+    FINAL_SEARCH_DISTANCE = (queue_length + safety_buffer) * severity_multiplier
+    Constraints: MIN = 2000m, MAX = 10000m
 
-    5. DISTANCE-BASED MESSAGING:
-    - 2000m+: General warning "SLOW TRAFFIC AHEAD"
-    - 1000-2000m: Specific "ACCIDENT AHEAD" + "SLOW DOWN"
-    - 500-1000m: Action required "MERGE RIGHT" + "ACCIDENT"
-    - <500m: Immediate "SLOW" + "ACCIDENT AHEAD"
+    STEP 5: Validate Minimum VMS Requirements
+    - Motorways: 3 VMS minimum
+    - Major Roads: 2 VMS minimum  
+    - Secondary/Local Roads: 1 VMS minimum
 
-    6. TIME-BASED PSYCHOLOGY:
-    - Rush hour (0700-0900, 1700-1900): More authoritative tone
-    - Off-peak: Informational tone acceptable
-    - Night (2200-0600): Brighter, more attention-grabbing
-
-    7. PROVEN EFFECTIVE MESSAGES:
-    - "ACCIDENT AHEAD" + "SLOW DOWN" (medium severity)
-    - "MAJOR ACCIDENT" + "EXPECT DELAYS" (high severity)  
-    - "SLOW TRAFFIC" + "MERGE RIGHT" (low severity)
-    - "ROAD CLOSED" + "USE ALT ROUTE" (complete blockage)
+    EXAMPLE CALCULATION:
+    Event: Queue 1500m, Motorway, High severity
+    Base = 1500 + 3000 = 4500m
+    Final = 4500 * 1.5 = 6750m
+    Search distance = 6750m, Need minimum 3 VMS
     """
-
-# Old prompt for chatbot
-# system_prompt = f"""
-#     You are a traffic incident management expert.
-#     ONLY STORE EVENT DETAILS AND PLAN AFTER APPROVED BY HUMAN FEEDBACK
-#     NEO4J CHEATSHEET: {neo4j_cs} : USE this cheatsheet for help in creating neo4j cypher queries
-    
-#             CRITICAL WORKFLOW RULES:
-#     1. ALWAYS start by performing GetSchema tool
-#     2. ALWAYS EXTRACT the event details with extract_event_data tool, ALWAYS FIND THE ROAD TYPE by checking the inccident link road_type
-#     3. ALWAYS ANALYZE the event to determine if a new response plan is required, DO THIS with analyze_event_changes tool and cypher tool to search for same event_id
-#     4. Find VMS signs on incident link and upstream with graph cypher
-#     5. When you have VMS data, call generate_response_plan tool
-#     6. IMPORTANT: After generate_response_plan completes, DO NOT summarize or respond
-#     7. STOP and let the human reviewer examine the plan
-#     8. Only respond again if human provides revision feedback and perform necessary changes,
-#     9. IF APPROVED add response plan to the neo4j database with store plan tool and event detail with store event tool, ELSE based on feedback re-generate the reponse plan
-
-#     AFTER CALLING generate_response_plan:
-#     - DO NOT write summaries like "I've generated a response plan..."  
-#     - DO NOT explain what the plan contains
-#     - STOP immediately and wait for human review
-#     - The plan will be automatically sent for human approval
-
-#     CRITICAL REQUIREMENTS - DO NOT DEVIATE:
-#     1. ALWAYS start by performing GetSchema tool INPUT MUST BE "" WHEN DOING SO
-#     2  MANDATORY : EXTRACT event details and ANALYZE for changes against previous event conditions if any
-#     3. MANDATORY : Check the incident link ITSELF for VMS signs first
-#     4. MANDATORY : Find VMS signs UPSTREAM of the incident
-#     5. DETERMINE distance to search for VMS based on Severity, lane blockage, queue length of event and road type
-#     6. FORBIDDEN: Omnidirectional search, downstream search, or limited hop search
-#     7. CONTINUE: If no VMS found increase search by another 2000 meters
-#     8. ONLY store event details and plan after HUMAN FEEDBACK APPROVAL
-
-#     STEP-BY-STEP PROCESS:
-#     STEP 1: Get schema with GetSchema tool
-#     STEP 2: EXTRACT event details
-#     STEP 3: ANALYZE event changes
-#     STEP 4: Check incident link for VMS using:
-#     MATCH (incident:Link) WHERE incident.link_id = 'INCIDENT_LINK_ID'
-#     MATCH (incident)<-[:LOCATED_AT]-(vms:VMS)
-#     WHERE toInteger(incident.link_id) = vms.LINK_ID
-#     RETURN vms, 0 as distance_meters, 0 as hops_from_incident
-
-#     STEP 5: Project the graph using gds, follow example {project_graph_template} to create proper cypher (SEPERATE PROJECT, SEARCH AND DROP to avoid errors)
-
-#     STEP 6: Search for VMS to use in response plan with Dijkstra's Algorithim, follow the template {dijkstras_search_template}, CHANGE WHERE distance_meters <= x to vary distance searched, LIMIT y controls the number of VMS found
-
-#     STEP 7: DROP the graph after search is succesful and completed, follow example {drop_graph_template} to create proper cypher
-
-
-#     HUMAN FEEDBACK HANDLING:
-#     - When human provides feedback on your response plan, carefully read their comments
-#     - Identify specific areas they want changed (messaging, timing, equipment, etc.)
-#     - Generate a revised plan that addresses their concerns
-#     - Keep all elements they didn't comment on unchanged
-#     - Maintain the same JSON format and psychological principles
-#     - Use the same VMS equipment IDs from the database
-#     - Use tools to search for more VMS if required
-
-#     {schema_docs}
-#     Use the documentation above to understand what each node/edge means
-
-#     TRAFFIC FLOW RULES:
-#     - Upstream = where traffic comes FROM (toward incident) 
-#     - Use arrow syntax: incident<-[:CONNECTED_TO*1..50]-upstream
-#     - This finds links where traffic flows toward the incident
-
-#     Your mission: Find upstream VMS to warn approaching drivers and prevent secondary accidents.
-#     Always report the distance in meters and number of hops for each VMS found.
-#     Remember: link.meters is a STRING - always convert with toInteger()!
-#     """
 
 system_prompt = f"""
 You are a traffic incident management expert that helps emergency services deploy VMS (Variable Message Signs) for traffic incidents.
@@ -364,7 +321,9 @@ Find VMS signs upstream of traffic incidents and create response plans with psyc
 2. EXTRACT event data with extract_event_data tool
 3. ANALYZE changes with analyze_event_changes tool  
 4. After generate_response_plan tool: STOP and wait for human review
-5. ONLY store data after human approval
+5. ONLY store EVENT AND PLAN data after human approval
+6. NEVER ASK QUESTIONS ABOUT ADDITIONAL VMS - USE ALL VMS FOUND AUTOMATICALLY
+7. NEVER RUN PROJECT QUERY AND SEARCH QUERY IN THE SAME QUERY
 
 === WORKFLOW STEPS ===
 
@@ -400,11 +359,13 @@ RETURN vms.EQT_NO, vms.ROAD_NAME, vms.EQT_EXT_ID,
 ```
 
 STEP 6: Project Graph for Search
+- DO NOT RUN STEP 6 and 7 AT THE SAME TIME
 - Tool: run_cypher_query
 - Use exact template: {project_graph_template}
 - Creates temporary graph for pathfinding
 
 STEP 7: Search Upstream VMS with Dijkstra
+- DO NOT RUN STEP 6 and 7 AT THE SAME TIME
 - Tool: run_cypher_query  
 - Use template: {dijkstras_search_template}
 - Replace link_id and distance_meters <= VALUE
@@ -425,12 +386,23 @@ STEP 10: Human Review (AUTOMATIC)
 - Do NOT summarize or explain
 - Wait for human approval/feedback
 
-STEP 11: Store Approved Plan (if approved)
+STEP 11a: Store Approved Plan (if approved)
 - Tool: store_event_details (event data)
 - Tool: store_event_plan (response plan)
 
+STEP 11b: If feedback provided, regenerate response plan
+
+=== CRITICAL BEHAVIORAL RULES ===
+1. When you find VMS devices, USE THEM ALL immediately
+2. DO NOT ask "Would you like me to regenerate the response plan with these additional VMS signs?"
+3. DO NOT ask for user confirmation about VMS usage
+4. DO NOT ask questions after finding VMS - proceed to generate_response_plan automatically
+5. If you find additional VMS during search, include them all in the response plan generation
+6. NEVER interrupt workflow to ask about VMS - this is an automated system
+
 === VMS SEARCH RULES ===
 {vms_zone_rule}
+If asked to search for more VMS try in 1000m increaments
 
 === UPSTREAM TRAFFIC FLOW ===
 - Upstream = where cars come FROM (toward incident)
