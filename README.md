@@ -1,6 +1,6 @@
 # Traffic Management System with Human-in-the-Loop
 
-A sophisticated traffic incident management system that uses Neo4j knowledge graphs, LangChain, and LangGraph to generate psychology-based VMS (Variable Message Signs) response plans with human approval workflow.
+A traffic incident management system that uses Neo4j knowledge graphs, LangChain, and LangGraph to generate VMS (Variable Message Signs) response plans with human approval workflow.
 
 ## Features
 
@@ -9,6 +9,10 @@ A sophisticated traffic incident management system that uses Neo4j knowledge gra
 - **Psychology-Based Messaging**: VMS messages designed using cognitive and behavioral psychology
 - **Human-in-the-Loop**: Manual approval system for critical traffic management decisions
 - **LangSmith Integration**: Performance monitoring and tracking
+  
+## Latest update
+- rpgv2human_2_agent.ipynb is the latest jupyter notebook, has 2 agents, one for plan generation and second to handle human feedback processing (Features have not been updated to main.py)
+- rpgv2human.ipynb is the same as main.py
 
 ## Quick Start
 
