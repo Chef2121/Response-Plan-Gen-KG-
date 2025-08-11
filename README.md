@@ -11,7 +11,7 @@ A traffic incident management system that uses Neo4j knowledge graphs, LangChain
 - **LangSmith Integration**: Performance monitoring and tracking
   
 ## Latest update
-- rpgv2human_2_agent.ipynb is the latest jupyter notebook, has 2 agents, one for plan generation and second to handle human feedback processing (Features have not been updated to main.py)
+- rpgv2human_2_agent.ipynb is the latest jupyter notebook, has 2 agents, one for plan generation and second to handle human feedback processing. Also utilizing interrupt now instead of input for human feedback.(Features have not been updated to main.py)
 - rpgv2human.ipynb is the same as main.py
 
 ## Quick Start
