@@ -56,6 +56,7 @@ A traffic incident management system that uses Neo4j knowledge graphs, LangChain
 - main.py has not been tested fully, most tests were done in rpgjv2human.ipynb, might have issues
 - The should_continue function used to control flow is very messy and needs refinement, is the cause for most of the above issues.
 - Sometimes deprecated error occurs for gds.graph.drop, llm probebly did not add YIELD graphName (is a non issue as there deprecated function is the schema return function)
+- Some of this issues may have been fixed in rpgv2human_2_agent.ipynb, interrupt was used instead for human in the loop, seperate agent for feedback processing to reduce confusion to the LLM in the system prompts.
 
 ## Next Step
 - Rerouting logic added to VMS messages
