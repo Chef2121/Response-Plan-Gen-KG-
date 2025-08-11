@@ -298,16 +298,10 @@ vms_zone_rule = """
     FINAL_SEARCH_DISTANCE = (queue_length + safety_buffer) * severity_multiplier
     Constraints: MIN = 2000m, MAX = 10000m
 
-    STEP 5: Validate Minimum VMS Requirements
-    - Motorways: 3 VMS minimum
-    - Major Roads: 2 VMS minimum  
-    - Secondary/Local Roads: 1 VMS minimum
-
     EXAMPLE CALCULATION:
     Event: Queue 1500m, Motorway, High severity
     Base = 1500 + 3000 = 4500m
     Final = 4500 * 1.5 = 6750m
-    Search distance = 6750m, Need minimum 3 VMS
     """
 
 system_prompt = f"""

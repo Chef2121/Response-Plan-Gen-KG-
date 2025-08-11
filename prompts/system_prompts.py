@@ -131,30 +131,6 @@ dijkstras_search_template = """
     hops_from_incident
     ORDER BY distance_meters ASC
 
-    //USE THIS TEMPLATE WHEN SEARCHING FOR ADDITIONAL VMS
-    MATCH (vms:VMS)
-    WITH collect(toInteger(split(elementId(vms), ":")[-1])) AS targetNodes
-
-    MATCH (incident:Link {link_id: '17840006094278'})
-    CALL gds.shortestPath.dijkstra.stream('linkGraph', {
-    sourceNode: incident,
-    targetNodes: targetNodes,
-    relationshipWeightProperty: 'weight'
-    })
-    YIELD targetNode, totalCost, nodeIds
-
-    WITH gds.util.asNode(targetNode) AS vms, totalCost AS distance_meters, size(nodeIds) AS hops_from_incident
-    WHERE distance_meters <= 9000 AND NOT vms.EQT_NO IN ['E11DMSG04S', 'E11DMSG05S', 'D59DMSP02E'] // This list would be the VMS already found, change value of distance_meters based on feedback
-    RETURN 
-    vms.EQT_NO, 
-    vms.ROAD_NAME, 
-    vms.EQT_EXT_ID, 
-    vms.LINK_ID AS vms_link_id, 
-    distance_meters, 
-    hops_from_incident
-    ORDER BY distance_meters ASC
-    LIMIT 5
-
     """
 
 drop_graph_template = """

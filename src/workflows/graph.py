@@ -97,8 +97,6 @@ def should_continue(state: GraphState):
         if hasattr(last_message, 'tool_calls') and last_message.tool_calls:
             return "tools"  
     
-    if hasattr(last_message, 'tool_calls') and last_message.tool_calls:
-        return "tools"
     
     if final_approved:
         print("Plan approved - continuing to storage")
